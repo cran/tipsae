@@ -41,7 +41,7 @@ export <- function(x,
                    type = "all",
                    ...) {
 
-  if (any(class(x) != c("estimates_fitsae", "list"))) # & any(class(x) != "benchmark_fitsae"))
+  if (!inherits(x, c("estimates_fitsae", "list"))) # & any(class(x) != "benchmark_fitsae"))
     stop("Indicated object does not have 'estimates_fitsae' class.")
   if (!type %in% c("in", "out", "all"))
     stop("Type has to be specified as 'in', 'out' or 'all'.")
@@ -49,20 +49,13 @@ export <- function(x,
   if (is.null(x$out_of_sample) & type == "all")
     type <- "in"
 
-  if (any(class(x) == "benchmark_fitsae")) {
-    ex <- extract(x)
-  } else {
-    ex <- x
-  }
-
-
   if (type == "all") {
-    out <- rbind(ex$in_sample, ex$out_of_sample)
+    out <- rbind(x$in_sample, x$out_of_sample)
   } else {
     if (type == "out") {
-      out <- ex$out_of_sample
+      out <- x$out_of_sample
     } else {
-      out <- ex$in_sample
+      out <- x$in_sample
     }
   }
 
