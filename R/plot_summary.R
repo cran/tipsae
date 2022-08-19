@@ -1,4 +1,4 @@
-#' Plot Function for a `summary_fitsae` Object
+#' Plot Method for a `summary_fitsae` Object
 #'
 #' The generic method `plot()` provides, in a grid (default) or sequence, (a) a scatterplot of direct estimates versus model-based estimates, visually capturing the shrinking process, (b) a Bayesian P-values histogram, (c) a boxplot of standard deviation reduction values, and, if areas sample sizes are provided as input in `fit_sae()`, (d) a scatterplot of model residuals versus sample sizes, in order to check for design-consistency i.e., as long as sizes increase residuals should converge to zero.
 #'
@@ -45,7 +45,7 @@ plot.summary_fitsae <- function(x,
     stop("Indicated object does not have 'summary_fitsae' class.")
 
   if (is.null(x$data_obj$domain_size_n))
-    message("To check for the design consistency the domains sample size is required. \n
+    message("When checking for design consistency, the domains sample size is required. \n
             Specify the argument 'domain_size' of the fit_sae() function.")
 
   if (!grid) {
@@ -72,10 +72,10 @@ plot.summary_fitsae <- function(x,
 
     # Boxplot for standard deviation reduction
     boxplot_sdr <- ggplot2::ggplot(xydata, ggplot2::aes_(y = ~ sdr, x = ~ ind)) +
-      ggplot2::theme_bw() + ggplot2::xlab("") + ggplot2::ylab("S.D. Reduction") +
+      ggplot2::theme_bw() + ggplot2::ylab("S.D. Reduction") + ggplot2::xlab("Distribution") +
       ggplot2::geom_boxplot() +
-      ggplot2::theme(axis.text.x =  ggplot2::element_blank())
-
+      ggplot2::theme(axis.ticks.x = ggplot2::element_blank(),
+                     axis.text.x = ggplot2::element_blank())
     if (0 >= min(xydata$sdr) & 0 <= max(xydata$sdr))
       boxplot_sdr <- boxplot_sdr + ggplot2::geom_hline(yintercept = 0)
 
@@ -97,7 +97,7 @@ plot.summary_fitsae <- function(x,
     # Histogram Bayesian p-values
     hist_bp <- ggplot2::ggplot(data = xydata, ggplot2::aes_(x = ~ bp)) +
       ggplot2::xlim(0, 1) + ggplot2::theme_bw() +
-      ggplot2::xlab("Bayesian p-values") + ggplot2::ylab("") +
+      ggplot2::xlab("Bayesian p-values") + ggplot2::ylab("Counts") +
       ggplot2::geom_histogram(bins = n_bins,
                               color = "black",
                               fill = "white")

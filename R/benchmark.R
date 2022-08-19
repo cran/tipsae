@@ -75,12 +75,13 @@
 benchmark <- function(x,
                       bench,
                       share,
-                      method = "raking", #c("raking", "ratio", "double")
+                      method = c("raking", "ratio", "double"),
                       H = NULL,
                       time = NULL,
                       areas = NULL) {
 
   # check parameters
+  method <- match.arg(method)
   check_bench(x,
               bench,
               share,
@@ -159,7 +160,11 @@ benchmark <- function(x,
               method = method,
               post_risk = post_risk,
               time = time,
+              bench = bench,
+              H = H,
               areas = areas,
+              raw_est = estim,
+              share = share,
               data_obj = x$data_obj,
               model_settings = x$model_settings,
               model_estimates = x$model_estimates,
@@ -173,7 +178,7 @@ benchmark <- function(x,
 }
 
 
-check_bench<-function(x,
+check_bench <- function(x,
                       bench,
                       share,
                       method,
@@ -188,33 +193,147 @@ check_bench<-function(x,
   if (is.null(method) || is.null(share) || is.null(bench))
     stop(" 'method', 'share' and 'bench' has to be prespecified. ")
 
+
   if (method == "double" && is.null(H))
     stop("Variability benchmark has to be specified in 'double' method.")
 
-  if(!is.null(areas) && any(!(areas %in% x$data_obj$domains_names)))
+  if (!is.null(areas) && any(!(areas %in% x$data_obj$domains_names)))
     stop("'areas' does not corresponds to a subset of 'summary_fitsae' domain names, check saefit$data_obj$domains_names.")
 
   tp = unique(x$data_obj$times)
 
-  if(x$model_settings$temporal_error && !(time %in% tp))
+  if (x$model_settings$temporal_error && !(time %in% tp))
     stop("Time value inserted does not correspond with time values in object 'summary_fitsae'.")
 
-  if(x$model_settings$temporal_error && length(time) != 1)
+  if (x$model_settings$temporal_error && length(time) != 1)
     stop("Only one time value can to be inserted.")
 
   }
 
-check_share<-function(share,
+check_share <- function(share,
                       estim){
 
-  if (length(share)!=length(estim))
+  if (length(share) != length(estim))
     stop("Share length differs from the total number of selected areas. ")
 
-  if(sum(share)!=1){
+  if (sum(share) != 1)
     warning("'share' vector does not sum to 1, benchmark estimates may be unreliable.")
-
-  }
 
 }
 
+#' @export
+#'
 
+print.benchmark_fitsae <- function(x, digits = 3L, ...) {
+  if (!inherits(x, "benchmark_fitsae"))
+    stop("Indicated object does not have 'benchmark_fitsae' class.")
+
+  cat("Benchmarking procedure \n")
+  cat("\n")
+  cat("* Adopted method:", x$method,"\n")
+  cat("* Indicator benchmark:",
+      round(x$bench, digits = digits), "\n")
+ if (x$method == "double") {
+   cat("* Ensemble variance benchmark:",
+       round(x$H, digits = digits), "\n")
+ }
+  cat("* Weighted sum of original estimates:",
+      round(x$raw_est %*% x$share, digits = digits), "\n")
+
+
+  areas <- ifelse(is.null(x$areas), "All", toString(x$areas))
+  cat("* Considered areas:",
+      areas, "\n")
+
+  if (!is.null(x$time)) {
+    cat("* Time period:",
+        x$time, "\n")
+  }
+  cat("\n")
+  cat("---------------------------------------------------------------------\n")
+  cat("Summaries of involved quantities\n")
+
+  cat("* Shares:\n")
+  print(summary(x$share, digits = digits))
+  cat("\n")
+  cat("* Benchmarked estimates:\n")
+  print(summary(x$bench_est, digits = digits))
+  cat("\n")
+
+  post_risk <- ifelse(!is.null(x$post_risk), round(x$post_risk, digits = digits), "not available for this method")
+  cat("* Posterior Risk:",
+      post_risk, "\n")
+  cat("\n")
+
+  cat("* Differences between original and benchmarked estimates:\n")
+  print(summary(x$raw_est - x$bench_est, digits = digits))
+  cat("\n")
+
+}
+
+#' Plot Method for `benchmark_fitsae` Object
+#'
+#' The method `plot()` provides the boxplots of original and benchmarked estimates in comparison with the benchmark value. Note that share weights are not considered.
+#'
+#' @param x A `benchmark_fitsae` object.
+#' @param ... Currently unused.
+#'
+#' @return A `ggplot2` object.
+#'
+#' @seealso \code{\link{benchmark}} to produce the input object.
+#'
+#' @examples
+#' library(tipsae)
+#'
+#' # loading toy dataset
+#' data("emilia_cs")
+#'
+#' # fitting a model
+#' fit_beta <- fit_sae(formula_fixed = hcr ~ x, data = emilia_cs, domains = "id",
+#'                     type_disp = "var", disp_direct = "vars", domain_size = "n",
+#'                     # MCMC setting to obtain a fast example. Remove next line for reliable results.
+#'                     chains = 1, iter = 300, seed = 0)
+#'
+#' # check model diagnostics
+#' summ_beta <- summary(fit_beta)
+#'
+#' # creating a subset of the areas whose estimates have to be benchmarked
+#' subset <- c("RIMINI", "RICCIONE", "RUBICONE", "CESENA - VALLE DEL SAVIO")
+#'
+#' # creating population shares of the subset areas
+#' pop <- emilia_cs$pop[emilia_cs$id %in% subset]
+#' shares_subset <- pop / sum(pop)
+#'
+#' # perform benchmarking procedure
+#' bmk_subset <- benchmark(x = summ_beta,
+#'                         bench = 0.13,
+#'                         share = shares_subset,
+#'                         method = "raking",
+#'                         areas = subset)
+#' plot(bmk_subset)
+#'
+#'
+#' @export
+#'
+
+plot.benchmark_fitsae <- function(x, ...){
+  if (!inherits(x, "benchmark_fitsae"))
+    stop("Indicated object does not have 'benchmark_fitsae' class.")
+
+  # Arranging dataset
+  xydata <- data.frame(y = c(x$raw_est, x$bench_est),
+                       i = c(rep("Original", length(x$raw_est)),
+                             rep("Benchmarked", length(x$bench_est))))
+
+  # Plot original vs benchmarked estimates
+  #lims_axis <- range(c(x$raw_est, x$bench))
+  plot_s <- ggplot2::ggplot(data = xydata, ggplot2::aes_(x = ~ i, y = ~ y)) +
+    ggplot2::geom_abline(slope = 0, intercept = x$bench) +
+    ggplot2::theme(aspect.ratio = 1) +
+    ggplot2::ylab("") +
+    ggplot2::xlab("Estimates") +
+    ggplot2::theme_bw() +
+    ggplot2::geom_boxplot()
+
+  plot_s
+  }

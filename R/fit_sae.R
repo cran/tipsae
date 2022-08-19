@@ -6,9 +6,9 @@
 #' @param formula_fixed An object of class `"formula"` specifying the linear regression fixed part at the linking level.
 #' @param data  An object of class `"data.frame"` containing all relevant quantities.
 #' @param domains Data column name displaying the domain names. If `NULL` (default), the domains are denoted with a progressive number.
-#' @param disp_direct Data column name displaying given values of sampling dispersion for each domain.
+#' @param disp_direct Data column name displaying given values of sampling dispersion for each domain. In out-of-sample areas, dispersion must be `NA`.
 #' @param type_disp Parametrization of the dispersion parameter. The choices are variance (`"var"`) or \eqn{\phi_d} + 1 (`"neff"`) parameter.
-#' @param domain_size Data column name indicating domain sizes (optional).
+#' @param domain_size Data column name indicating domain sizes (optional). In out-of-sample areas, sizes must be `NA`.
 #' @param likelihood Sampling likelihood to be used. The choices are `"beta"` (default), `"flexbeta"`, `"Infbeta0"`, `"Infbeta1"` and `"Infbeta01"`.
 #' @param prior_reff Prior distribution of the unstructured random effect. The choices are: `"normal"`, `"t"`, `"VG"`.
 #' @param spatial_error Logical indicating whether to include a spatially structured random effect.
@@ -84,10 +84,10 @@ fit_sae <- function(formula_fixed,
                     data,
                     domains = NULL,
                     disp_direct,
-                    type_disp = "neff", #c("neff", "var"),
+                    type_disp = c("neff", "var"),
                     domain_size = NULL,
-                    likelihood = "beta", # c("beta", "flexbeta", "Infbeta0","Infbeta1","Infbeta01","Infbeta0alt"),
-                    prior_reff = "normal",  #c("normal", "t", "VG")
+                    likelihood = c("beta", "flexbeta", "Infbeta0","Infbeta1","Infbeta01"),
+                    prior_reff = c("normal", "t", "VG"),
                     spatial_error = FALSE,
                     spatial_df = NULL,
                     temporal_error = FALSE,
@@ -97,15 +97,17 @@ fit_sae <- function(formula_fixed,
                     init="0",
                     ...) {
 
+  call <- match.call()
+
+  type_disp <- match.arg(type_disp)
+  likelihood <- match.arg(likelihood)
+  prior_reff <- match.arg(prior_reff)
+
   prior_coeff <- "normal"
   p0_HorseShoe <- NULL
 
-  call <- match.call()
-  terms_formula <- terms(formula_fixed)
-
   # check parameters
   check_par_fit(formula_fixed,
-                terms_formula,
                 domains,
                 disp_direct,
                 type_disp,
@@ -125,7 +127,7 @@ fit_sae <- function(formula_fixed,
 
 
   # creation data objects
-  data_obj <- create_data(formula_fixed,terms_formula, data, domain_size, domains, disp_direct)
+  data_obj <- create_data(formula_fixed, data, domain_size, domains, disp_direct)
 
   # spatial error
   data_spatial <- arrange_spatial_structure(spatial_error, spatial_df, data_obj)
@@ -147,7 +149,8 @@ fit_sae <- function(formula_fixed,
     disp = data_obj$dispersion,
     prior_coeff = ifelse(prior_coeff == "normal", 0, 1),
     indices_is = data_obj$indices_is,
-    indices_oos = data_obj$indices_oos
+    indices_oos = data_obj$indices_oos,
+    intercept = data_obj$intercept
   )
   # adding intercepts of islands
   if (data_spatial$islands > 1) {
@@ -168,7 +171,7 @@ fit_sae <- function(formula_fixed,
   standata$X <- matrix(standata$X, ncol = ncol(data_obj$X_scal))
   }
   ### creation dummy variables
-  standata <- dummy_standata(standata, data_obj, terms_formula, type_disp,
+  standata <- dummy_standata(standata, data_obj, type_disp,
                              likelihood, prior_reff, prior_coeff, p0_HorseShoe)
 
 
@@ -213,7 +216,26 @@ fit_sae <- function(formula_fixed,
   return(output)
 }
 
+#' @export
+#'
 
+print.fitsae <- function(x, ...) {
+  if (!inherits(x, "fitsae"))
+  stop("Indicated object does not have 'fitsae' class.")
+  cat("Results of the fitting process for SAE model \n")
+  cat("\n")
+  print(x$call)
+  cat("\n")
+  cat("--------------------------------------------------------------------------\n")
+  cat("* Model likelihood:", x$model_settings$likelihood, "\n")
+  cat("* Dispersion parameter type:", ifelse(x$model_settings$type_disp == "var", "variance", "effective sample size") , "\n")
+  if (x$model_settings$spatio_temporal == 0) {
+    cat("* Prior on unstructured random effects:", x$model_settings$prior_reff , "\n")
+  }
+  cat("* Spatial error:", as.logical(x$model_settings$spatial_error) , "\n")
+  cat("* Temporal error:", as.logical(x$model_settings$temporal_error) , "\n")
+  cat("--------------------------------------------------------------------------")
+}
 
 
 

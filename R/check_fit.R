@@ -1,8 +1,7 @@
+
 # Only internal
 
-
 check_par_fit <- function(formula_fixed,
-                          terms_formula,
                           domains,
                           disp_direct,
                           type_disp,
@@ -23,12 +22,6 @@ check_par_fit <- function(formula_fixed,
   if (is.null(formula_fixed) || !inherits(formula_fixed, "formula")) {
     stop("Argument 'formula_fixed' must contain a formula object.")
   }
-  # terms_formula
-  if (!all(all.vars(formula_fixed) %in% colnames(data))) {
-    stop(
-      "The names of covariates and response included in 'formula_fixed' must be valid names of the columns of 'data'."
-    )
-  }
   # data
   if (is.null(data) || !is.data.frame(data)) {
     stop("The argument 'data' must contain a data.frame object.")
@@ -46,30 +39,6 @@ check_par_fit <- function(formula_fixed,
     stop(
       "The argument 'disp_direct' must contain a unique character that determines
          a column in the 'data' object with the direct estimates of the desired dispersion measure"
-    )
-  }
-  if (is.null(likelihood) || !(
-    likelihood == "beta"
-    || likelihood == "flexbeta"
-    || likelihood == "Infbeta0"
-    || likelihood == "Infbeta1"
-    || likelihood == "Infbeta01"
-    #|| likelihood == "Infbeta0alt"
-  )) {
-    stop(
-      "The argument 'likelihood' must contain a string among the following: 'beta', 'flexbeta',
-         'Infbeta0', 'Infbeta1', 'Infbeta01'"
-    )#, 'Infbeta0alt'
-  }
-  if (is.null(type_disp) || !(type_disp == "neff"
-                              || type_disp == "var")) {
-    stop("The argument 'type_disp' must contain a string among the following: 'deff', 'var'")
-  }
-  if (is.null(prior_reff) || !(prior_reff == "normal"
-                               || prior_reff == "t"
-                               || prior_reff == "VG")) {
-    stop(
-      "The argument 'prior_reff' must contain a string among the following: 'normal', 't', 'VG'"
     )
   }
   if (is.null(prior_coeff) || !(prior_coeff == "normal"
@@ -173,8 +142,7 @@ check_data_fit <- function(data_obj, likelihood, domain_size) {
     ) #'Infbeta0alt',
   }
 
-  if (sum(data_obj$is_oos) == 0 &&
-      !all(!is.na(data_obj$dispersion))) {
+  if (!all(!is.na(data_obj$dispersion[!data_obj$is_oos]))) {
     stop("The direct estimates of the dispersion parameters must not have NAs")
   }
   if (!all(!is.na(data_obj$dispersion[data_obj$y_is != 0 &

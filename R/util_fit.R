@@ -1,8 +1,7 @@
-
 # Internal functions
 
+
 create_data <-  function(formula_fixed,
-                         terms_formula,
                          data,
                          domain_size,
                          domains,
@@ -10,17 +9,29 @@ create_data <-  function(formula_fixed,
   if (inherits(data, "tbl")) {
     data <- as.data.frame(data)
   }
-  # scaled auxiliary variables
-  X <- data[, attr(terms_formula, which = 'term.labels')]
-  if (length(attr(terms_formula, which = 'term.labels')) == 1) {
-    X <- matrix(X, ncol = 1)
+  # Model frame
+  mf <- model.frame(formula_fixed, data, na.action = na.pass)
+  type_var <- attr(attr(mf, "terms"), "dataClasses")[-1]
+
+  # Design matrix
+  X <- model.matrix(update(formula_fixed, NULL ~ .) , data)
+  ass <- attr(X, "assign")
+  type_var_X <- type_var[ass] # type of column
+  # intercept removed: in case added later
+  intercept <- 0
+  if (ass[1] == 0) {
+    X <- X[, -1, drop = FALSE]
+    intercept <- 1
   }
-  scaled.aux <- scale(X)
-  colnames(scaled.aux) <- attr(terms_formula, which = 'term.labels')
+  # if the column is numeric, it is standardised
+  for (i in 1:ncol(X)) {
+    if (type_var_X[i] == "numeric") {
+      X[,i] <- scale(X[,i])
+    }
+  }
   ## Response
-  y <-
-    data[, all.vars(formula_fixed)[!(all.vars(formula_fixed) %in%
-                                       attr(terms_formula, which = 'term.labels'))]]
+  y <- model.extract(mf, "response")
+
   ## Logical for out of sample areas
   is_oos <- is.na(y)
   y_is <- y[!is_oos]
@@ -46,7 +57,8 @@ create_data <-  function(formula_fixed,
   return(
     list(
       y = y,
-      X_scal = scaled.aux,
+      X_scal = X,
+      intercept = intercept,
       y_is = y_is,
       is_oos = is_oos,
       dispersion = dispersion,
@@ -59,6 +71,9 @@ create_data <-  function(formula_fixed,
   )
 
 }
+
+
+
 
 
 
@@ -274,17 +289,11 @@ arrange_temporal_structure <-
 dummy_standata <-
   function(standata,
            data_obj,
-           terms_formula,
            type_disp,
            likelihood,
            prior_reff,
            prior_coeff,
            p0_HorseShoe) {
-    # Intercept
-    standata$intercept <-
-      ifelse(attr(terms_formula, which = 'intercept') == 0,
-             yes = 0,
-             no = 1)
     # Deff
     standata$deff <- ifelse(type_disp == "neff", yes = 1, no = 0)
 

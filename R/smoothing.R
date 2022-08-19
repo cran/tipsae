@@ -50,8 +50,9 @@ smoothing <- function(data,  # ordered as area id factor!
                       survey_data = NULL,
                       survey_area_id = NULL,
                       weights = NULL,
-                      sizes= NULL) {
+                      sizes = NULL) {
 
+  method <- match.arg(method)
   check_smoo(data,
              direct_estimates,
              area_id,
@@ -74,8 +75,7 @@ smoothing <- function(data,  # ordered as area id factor!
     message("Proportions variance function specified.")
   }
 
-  if(method == "kish"){
-
+  if (method == "kish") {
     if (!is.null(additional_covariates) ||
         !is.null(raw_variance) ||
         !is.null(areas_sample_sizes)
@@ -111,13 +111,15 @@ smoothing <- function(data,  # ordered as area id factor!
    data$inv_deff = 1 / data$deff
 
    out = list(
+         method = method,
+         var_function = var_function,
          phi = data$inv_deff - 1,
          vars = var_function(data$direct_estimates) / data$inv_deff
      )
 
   }
 
-  if (method %in% c("ols", "gls")){
+  if (method %in% c("ols", "gls")) {
 
    colnames(data)[which(colnames(data) == areas_sample_sizes)] <- "n"
    colnames(data)[which(colnames(data) == raw_variance)] <-
@@ -143,15 +145,16 @@ smoothing <- function(data,  # ordered as area id factor!
         reg <- nlme::gls(as.formula(paste0("y ~ -1", str)),
                          data = regdata, na.action = na.omit)}
 
-
-      print(summary(reg))
-
       inv_deff <- reg$coefficients[which(names(reg$coefficients) == "n")]
 
       out <- list(
+        method = method,
+        var_function = var_function,
         regression = reg,
         phi = data$n * inv_deff - 1,
-        vars = var_function(data$direct_estimates) / (data$n * inv_deff)
+        vars = var_function(data$direct_estimates) / (data$n * inv_deff),
+        raw_vars = data$raw_variance,
+        n = data$n
       )
     }
 
@@ -182,12 +185,8 @@ check_smoo <- function(data,
       "'direct_estimates' names if specified must be valid columns names of 'data'."
     )
 
-  if (!is.null(var_function) &&
-      !inherits(var_function, "function"))
+  if (!is.null(var_function) && !inherits(var_function, "function"))
     stop("'var_function' defined is not a function.")
-
-  if (!(method %in% c("ols", "gls", "kish")))
-    stop("'method' specified is not included in c('ols', 'gls', 'kish').")
 
   if (method == "kish") {
     if (!(area_id %in% colnames(data)))
@@ -214,10 +213,8 @@ check_smoo <- function(data,
 
     }
 
-  if(method %in% c("ols", "gls")){
-
-
-   if( (!is.null(raw_variance) &&
+  if (method %in% c("ols", "gls")) {
+   if ((!is.null(raw_variance) &&
          !(raw_variance %in% colnames(data))) ||
       (!is.null(areas_sample_sizes) &&
          !(areas_sample_sizes %in% colnames(data))) ||
@@ -232,4 +229,116 @@ check_smoo <- function(data,
   }
 
 
+}
+
+#' @export
+#'
+
+print.smoothing_fitsae <- function(x, digits = 3L, ...) {
+  if (!inherits(x, "smoothing_fitsae"))
+    stop("Indicated object does not have 'smoothing_fitsae' class.")
+  cat("Smoothing procedure for the dispersion parameters \n")
+  cat("\n")
+  cat("* Adopted method:", x$method,"\n")
+  cat("* Variance function:\n")
+  cat("function(mu) {\n")
+  print(body(x$var_function))
+  cat("}\n")
+
+  if (x$method %in% c("ols", "gls")) {
+    cat("---------------------------------------------------------------------\n")
+    cat("Generalized Variance Function regression: \n")
+    cat("\n")
+    print(summary(x$regression), digits = digits)
+    cat("---------------------------------------------------------------------\n")
+
+    cat("\n")
+  }
+
+  cat("Summaries of involved quantities\n")
+  cat("\n")
+  cat("* Smoothed variance estimates: \n")
+  print(summary(x$vars), digits = digits)
+  cat("\n")
+
+  if (x$method %in% c("ols", "gls")) {
+    cat("* Differences between smoothed and raw variances: \n")
+    print(summary(x$raw_vars - x$vars, digits = digits))
+    cat("\n")
+  }
+
+  cat("* Smoothed Phi: \n")
+  print(summary(x$phi, digits = digits))
+  cat("\n")
+
+}
+
+#' Plot Method for `smoothing_fitsae` Object
+#'
+#' The `plot()` method provides (a) the boxplot of variance estimates, when effective sample sizes are estimated through `kish` method; (b) a scatterplot of both original and smoothed estimates versus the area sample sizes, when variance smoothing is performed through methods `ols` and `gls`.
+#'
+#' @param x A `smoothing_fitsae` object.
+#' @param size Aesthetic option denoting the size of scatterplots points, see \code{\link[ggplot2]{geom_point}} documentation.
+#' @param alpha Aesthetic option denoting the opacity of scatterplots points, see \code{\link[ggplot2]{geom_point}} documentation.
+#' @param ... Currently unused.
+#'
+#' @return A `ggplot2` object.
+#'
+#' @seealso \code{\link{smoothing}} to produce the input object.
+#'
+#' @examples
+#'
+#' library(tipsae)
+#'
+#' # loading toy dataset
+#' data("emilia_cs")
+#'
+#' # perform smoothing procedure
+#' smoo <- smoothing(emilia_cs, direct_estimates = "hcr", area_id = "id",
+#'                   raw_variance = "vars", areas_sample_sizes = "n",
+#'                   var_function = NULL, method = "ols")
+#' plot(smoo)
+#'
+#' @export
+#'
+
+plot.smoothing_fitsae <- function(x,
+                                  size = 2.5,
+                                  alpha = 0.8,
+                                  ...
+){
+  if (!inherits(x, "smoothing_fitsae"))
+    stop("Indicated object does not have 'smoothing_fitsae' class.")
+
+  # Plot original vs smoother variance estimates
+  if (x$method == "kish") {
+
+  xydata <- data.frame(y = x$vars)
+  #lims_axis <- range(x$vars)
+  plot_s <- ggplot2::ggplot(data = xydata, ggplot2::aes_(y = ~ y)) +
+    ggplot2::theme(aspect.ratio = 1) +
+    ggplot2::ylab("Kish variance est.") +
+    ggplot2::theme_bw() +
+    ggplot2::geom_boxplot() +
+    ggplot2::theme(axis.text.x = ggplot2::element_blank(), axis.ticks = ggplot2::element_blank())
+  }else{
+    xydata <- data.frame(y = c(x$raw_vars, x$vars),
+                         n = c(x$n, x$n),
+                         Type = c(rep("Raw", length(x$raw_vars)),
+                               rep("Smoothed", length(x$vars))))
+  # scatter with n size and smoothed/original estimates
+
+    plot_s <- ggplot2::ggplot(data = xydata, ggplot2::aes_(x = ~ n, y = ~ y, color = ~ Type)) +
+      ggplot2::theme(aspect.ratio = 1) +
+      ggplot2::ylab("Estimates") +
+      ggplot2::xlab("n") +
+      ggplot2::theme_bw() +
+      ggplot2::geom_point(
+        shape = 20,
+        size = size,
+        alpha = alpha) +
+      ggplot2::scale_color_manual(values = c("#E69F00", "deepskyblue4"))
+  }
+
+  plot_s
 }
