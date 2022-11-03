@@ -1,9 +1,9 @@
-d78db3dcaec01bb1ecd26e5d65d5ff95 *DESCRIPTION
+55664182a99b7f69aa2c0d8ff98b6535 *DESCRIPTION
 5abcd2df897743e9c77139844691ec25 *NAMESPACE
 a27f3c8ac1cc0b9a678196acf2a9b6ef *R/app_launcher.R
 f6363967d81d4bc824a42eef13b6bd92 *R/benchmark.R
 c1959349da3d83b9898b12941f50443e *R/check_fit.R
-4512917c2bb9aff42d2b9f8ebe2d52b0 *R/data.R
+d8f84d2550a99820fa97601d792ee789 *R/data.R
 3a2d0a333de79379a663ca7afd467026 *R/density_summary.R
 74283dc0125347ecbd3a92d9c2046097 *R/export.R
 fb443e23221d2af0139aae251baa8d80 *R/extract.R
@@ -15,7 +15,7 @@ c81b4a2166c421a6a425f5eb07e5560b *R/stanmodels.R
 fe4a5e9e2f1bc53890bf91e0879208b0 *R/summary_fitsae.R
 a0aa11c8cd145a7bfa95f718e7697f52 *R/tipsae-package.R
 1605c48f662c0e1b0b5b37e2e3dbdf59 *R/util_fit.R
-5c2a560a98447f684ff4196b919f9b3c *build/partial.rdb
+aa7e1f7b2c1fac97ebae3117e9dcf9be *build/partial.rdb
 fce549c35ccfda623e46e5b0a9a8075c *build/vignette.rds
 1cc60bdd8610449d30184e0bb374bf46 *configure
 363506993327ae3b7de4216fa3a1aa2b *configure.win
@@ -122,6 +122,6 @@ c6b82a5628d47aa016e9d619db52e932 *man/plot.smoothing_fitsae.Rd
 66d6aef607935be5ead2bd71ebf6e98f *src/Makevars.win
 8ef3ae165e05bbd6bceb26ea076155ef *src/RcppExports.cpp
 9f93d2806abd1516336fee2e6aa8240d *src/stanExports_global.cc
-6747d4678dc490ce35cec0351cf49be6 *src/stanExports_global.h
+a2e671683d5d261a0fc1b13446b6ef12 *src/stanExports_global.h
 8a01a87d442e30d2cb37e1afc59ddc60 *vignettes/shiny_tipsae_vignette.pdf.asis
 32545c9b4d877670a16281eb7af9aaff *vignettes/tipsae_vignette.pdf.asis

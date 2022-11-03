@@ -1,7 +1,7 @@
 Package: tipsae
 Title: Tools for Handling Indices and Proportions in Small Area
         Estimation
-Version: 0.0.7
+Version: 0.0.9
 Authors@R: 
     c(person(given = "Silvia",
            family = "De Nicolò",
@@ -24,18 +24,18 @@ Biarch: true
 NeedsCompilation: yes
 Depends: R (>= 3.5.0), shiny (>= 1.0.3)
 Imports: methods, Rcpp (>= 0.12.0), broom, rstan (>= 2.18.1), ggplot2
-        (>= 3.3.2), nlme (>= 3.1.152), stats, ggpubr, Rdpack
+        (>= 3.3.2), nlme (>= 3.1.152), stats, ggpubr, sp, Rdpack
 Suggests: rstantools (>= 2.1.1), RcppParallel (>= 5.0.1), callr, spam,
         spdep, maptools (>= 1.0.2), gridExtra (>= 2.3), R.rsp, rgeos,
         shinythemes, shinyFeedback, shinybusy, shinyWidgets, shinyjs,
-        bayesplot, sp, loo (>= 2.3.1)
+        bayesplot, loo (>= 2.3.1)
 LinkingTo: BH (>= 1.66.0), Rcpp (>= 0.12.0), RcppEigen (>= 0.3.3.3.0),
         RcppParallel (>= 5.0.1), rstan (>= 2.18.1), StanHeaders (>=
         2.18.0)
 SystemRequirements: GNU make
-Packaged: 2022-08-18 13:19:07 UTC; Acer
+Packaged: 2022-11-03 11:57:24 UTC; Acer
 Author: Silvia De Nicolò [aut, cre] (<https://orcid.org/0000-0001-5052-6527>),
   Aldo Gardini [aut] (<https://orcid.org/0000-0002-2164-5815>)
 Maintainer: Silvia De Nicolò <silvia.denicolo@unibo.it>
 Repository: CRAN
-Date/Publication: 2022-08-19 09:00:02 UTC
+Date/Publication: 2022-11-03 12:40:02 UTC
