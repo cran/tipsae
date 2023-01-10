@@ -12,9 +12,11 @@
 #' @param likelihood Sampling likelihood to be used. The choices are `"beta"` (default), `"flexbeta"`, `"Infbeta0"`, `"Infbeta1"` and `"Infbeta01"`.
 #' @param prior_reff Prior distribution of the unstructured random effect. The choices are: `"normal"`, `"t"`, `"VG"`.
 #' @param spatial_error Logical indicating whether to include a spatially structured random effect.
-#' @param spatial_df Object of class `SpatialPolygonsDataFrame` with the shapefile of the studied region. Required if `spatial_error = TRUE`.`
+#' @param spatial_df Object of class `SpatialPolygonsDataFrame` with the shapefile of the studied region. Required if `spatial_error = TRUE`.
+#' @param domains_spatial_df Column name of the `spatial_df@data` object displaying the domain names. Required if `spatial_error = TRUE`.
 #' @param temporal_error Logical indicating whether to include a temporally structured random effect.
 #' @param temporal_variable Data column name indicating temporal variable. Required if `temporal_error = TRUE`.
+#' @param scale_prior List with the values of the prior scales. 4 named elements must be provided: "Unstructured", "Spatial", "Temporal", "Coeff.". Default: all equal to 2.5.
 #' @param adapt_delta HMC option: target average proposal acceptance probability. See \code{\link[rstan]{stan}} documentation.
 #' @param max_treedepth HMC option: target average proposal acceptance probability. See \code{\link[rstan]{stan}} documentation.
 #' @inheritParams rstan::sampling
@@ -49,9 +51,6 @@
 #' # loading the shapefile of the concerned areas
 #' data("emilia_shp")
 #'
-#' # ordering the shapefile consistently with the dataset order
-#' emilia_shp@data <- emilia_shp@data[match(unique(emilia$id), emilia_shp@data$NAME_DISTRICT),]
-#'
 #' # fitting a spatio-temporal model
 #' fit_ST <- fit_sae(formula_fixed = hcr ~ x,
 #'                   domains = "id",
@@ -61,12 +60,12 @@
 #'                   data = emilia,
 #'                   spatial_error = TRUE,
 #'                   spatial_df = emilia_shp,
+#'                   domains_spatial_df = "NAME_DISTRICT",
 #'                   temporal_error = TRUE,
 #'                   temporal_variable = "year",
 #'                   max_treedepth = 15,
 #'                   seed = 0)
 #'}
-#'
 #'
 #' @references
 #'
@@ -90,8 +89,13 @@ fit_sae <- function(formula_fixed,
                     prior_reff = c("normal", "t", "VG"),
                     spatial_error = FALSE,
                     spatial_df = NULL,
+                    domains_spatial_df = NULL,
                     temporal_error = FALSE,
                     temporal_variable = NULL,
+                    scale_prior = list("Unstructured" = 2.5,
+                                       "Spatial" = 2.5,
+                                       "Temporal" = 2.5,
+                                       "Coeff." = 2.5),
                     adapt_delta = 0.95,
                     max_treedepth=10,
                     init="0",
@@ -119,12 +123,27 @@ fit_sae <- function(formula_fixed,
                 p0_HorseShoe,
                 spatial_error,
                 spatial_df,
+                domains_spatial_df,
                 temporal_error,
                 temporal_variable,
                 adapt_delta,
                 max_treedepth,
                 init)
 
+  # check scale_prior
+  check_scale_prior(scale_prior)
+
+  # order dataset w.r.t. domain
+  if (!is.null(domains)) {
+    if (!temporal_error) {
+      data <- data[order(data[,domains]), ]
+    }else{# with temporal error: domain nested within times
+      data <- data[order(data[,temporal_variable], data[,domains]), ]
+    }
+  }
+  if (!is.null(spatial_df)) {
+    spatial_df@data <- spatial_df@data[order(spatial_df@data[,domains_spatial_df]), ]
+  }
 
   # creation data objects
   data_obj <- create_data(formula_fixed, data, domain_size, domains, disp_direct)
@@ -150,7 +169,11 @@ fit_sae <- function(formula_fixed,
     prior_coeff = ifelse(prior_coeff == "normal", 0, 1),
     indices_is = data_obj$indices_is,
     indices_oos = data_obj$indices_oos,
-    intercept = data_obj$intercept
+    intercept = data_obj$intercept,
+    sigma_unstr = scale_prior[["Unstructured"]],
+    sigma_spatial = scale_prior[["Spatial"]],
+    sigma_temporal = scale_prior[["Temporal"]],
+    sigma_coeff = scale_prior[["Coeff."]]
   )
   # adding intercepts of islands
   if (data_spatial$islands > 1) {
