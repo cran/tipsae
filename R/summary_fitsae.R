@@ -167,7 +167,9 @@ summary.fitsae <- function(object,
     # out of samples
     if (sum(object$data_obj$is_oos) == 0) {
       post_summ_theta_oos <- NULL
-    }else{
+    }else if(object$model_settings$likelihood == "flexbeta"){
+      post_summ_theta_oos <- NULL
+    } else {
       theta_est_oos <- par[grepl("^theta_oos", par)]
       post_summ_theta_oos = smry[theta_est_oos, col_take]
       if (length(theta_est_oos) == 1) {
@@ -233,7 +235,7 @@ summary.fitsae <- function(object,
         p_0 <- as.matrix(object$stanfit)[, p0]
         p_tot <- p_1 + p_0
         g <- p_1/p_tot
-        vars <- m * sweep((1 - m), MARGIN = 2, STATS = (object$dispersion + 1), FUN = '/') *
+        vars <- m * sweep((1 - m), MARGIN = 2, STATS = (object$data_obj$dispersion + 1), FUN = '/') *
            (1 - p_tot) + p_tot * g * (1 - g) + p_tot * (1 - p_tot) * (g - m) ^ 2
       }
       sd_d <- sqrt(apply(vars, 2, mean))

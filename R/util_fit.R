@@ -165,7 +165,7 @@ arrange_spatial_structure <- function(spatial_error,
         N_edges = N_edges,
         N_comp = nc,
         dim_c = as.array(group_sizes),
-        indices_spat = indices_eff,
+        indices_spat = as.array(indices_eff),
         scales_ICAR = scales,
         node1 = node1,
         node2 = node2,
@@ -180,8 +180,8 @@ arrange_spatial_structure <- function(spatial_error,
         N_edges = 0,
         N_comp = 0,
         dim_c = numeric(0),
-        indices_spat = numeric(length(unique(data_obj$domains_names))),
-        scales_ICAR = numeric(length(unique(data_obj$domains_names))),
+        indices_spat = as.array(1:length(unique(data_obj$domains_names))),
+        scales_ICAR = as.array(1:length(unique(data_obj$domains_names))),
         node1 = numeric(0),
         node2 = numeric(0),
         intercept_islands = 0,
@@ -255,7 +255,7 @@ arrange_temporal_structure <-
           node1_t = 1:(TP - 1),
           node2_t = 2:TP,
           scale_factor_RW1 = scale_factor_RW1,
-          cat_ios = cat_ios[data_obj$indices_oos]
+          cat_ios = as.array(cat_ios[data_obj$indices_oos])
 
         )
       )
@@ -270,7 +270,7 @@ arrange_temporal_structure <-
           node1_t = numeric(0),
           node2_t = numeric(0),
           scale_factor_RW1 = 0,
-          cat_ios = numeric(sum(data_obj$is_oos))
+          cat_ios = as.array(numeric(sum(data_obj$is_oos)))
         )
       )
 
@@ -408,7 +408,7 @@ target_parameters <- function(standata,
     }
 
 
-    if (length(data_obj$y[data_obj$is_oos]) != 0)
+    if (length(data_obj$y[data_obj$is_oos]) != 0 & likelihood != "flexbeta")
       pars_interest <- c(pars_interest, "theta_oos")
     if (standata$spatial_err == 1) {
       pars_interest <- c(pars_interest, "sigma_s", "s")

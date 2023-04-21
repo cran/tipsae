@@ -1,7 +1,7 @@
 Package: tipsae
 Title: Tools for Handling Indices and Proportions in Small Area
         Estimation
-Version: 0.0.12
+Version: 0.0.13
 Authors@R: 
     c(person(given = "Silvia",
            family = "De Nicolò",
@@ -33,9 +33,9 @@ LinkingTo: BH (>= 1.66.0), Rcpp (>= 0.12.0), RcppEigen (>= 0.3.3.3.0),
         RcppParallel (>= 5.0.1), rstan (>= 2.18.1), StanHeaders (>=
         2.18.0)
 SystemRequirements: GNU make
-Packaged: 2023-01-10 17:39:57 UTC; Acer
+Packaged: 2023-04-21 12:47:42 UTC; Acer
 Author: Silvia De Nicolò [aut, cre] (<https://orcid.org/0000-0001-5052-6527>),
   Aldo Gardini [aut] (<https://orcid.org/0000-0002-2164-5815>)
 Maintainer: Silvia De Nicolò <silvia.denicolo@unibo.it>
 Repository: CRAN
-Date/Publication: 2023-01-10 18:10:02 UTC
+Date/Publication: 2023-04-21 16:00:03 UTC

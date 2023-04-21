@@ -133,6 +133,9 @@ check_par_fit <- function(formula_fixed,
   if (likelihood %in% c("flexbeta") & type_disp == "neff") {
     stop("With the flexible beta model 'type_disp' can be only 'var'.")
   }
+  if (likelihood %in% c("Infbeta01") & init == "0") {
+    warning("Initial values of probabilities related to 0 and 1 are unconstained, we suggest to use init='random' to avoid initialization errors.")
+  }
 
 }
 
@@ -165,12 +168,12 @@ check_data_fit <- function(data_obj, likelihood, domain_size) {
   if (!all(data_obj$y_is != 0) &&
       !(likelihood %in% c("Infbeta0",  "Infbeta01"))) { #"Infbeta0alt",
     stop(
-      "To deal with direct estimates equal to 1, models 'Infbeta0',
+      "To deal with direct estimates equal to 0, models 'Infbeta0',
           or 'Infbeta01' must be chosen"
     ) #'Infbeta0alt',
   }
 
-  if (!all(!is.na(data_obj$dispersion[!data_obj$is_oos]))) {
+  if (!all(!is.na(data_obj$dispersion))) {
     stop("The direct estimates of the dispersion parameters must not have NAs")
   }
   if (!all(!is.na(data_obj$dispersion[data_obj$y_is != 0 &
@@ -178,10 +181,10 @@ check_data_fit <- function(data_obj, likelihood, domain_size) {
     stop("The direct estimates of the dispersion parameters must not have NAs")
   }
   if (sum(data_obj$dispersion <= 0, na.rm = T) != 0)
-    stop("Dispersion parameter uncorrectly specified with negative values.")
+    stop("Dispersion parameter uncorrectly specified with negative or null values.")
   if (!is.null(domain_size)) {
     if (sum(data_obj$domain_size_n <= 0, na.rm = T) != 0)
-      stop("Sizes of the domains uncorrectly specified with negative values.")
+      stop("Sizes of the domains uncorrectly specified with negative or null values.")
   }
 
 
