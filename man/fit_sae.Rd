@@ -44,9 +44,9 @@ fit_sae(
 
 \item{spatial_error}{Logical indicating whether to include a spatially structured random effect.}
 
-\item{spatial_df}{Object of class \code{SpatialPolygonsDataFrame} with the shapefile of the studied region. Required if \code{spatial_error = TRUE}.}
+\item{spatial_df}{Object of class \code{SpatialPolygonsDataFrame} or \code{sf} with the shapefile of the studied region. Required if \code{spatial_error = TRUE}.}
 
-\item{domains_spatial_df}{Column name of the \code{spatial_df@data} object displaying the domain names. Required if \code{spatial_error = TRUE}.}
+\item{domains_spatial_df}{Column name of the \code{spatial_df} object displaying the domain names. Required if \code{spatial_error = TRUE}.}
 
 \item{temporal_error}{Logical indicating whether to include a temporally structured random effect.}
 
@@ -86,7 +86,7 @@ data("emilia_cs")
 fit_beta <- fit_sae(formula_fixed = hcr ~ x, data = emilia_cs, domains = "id",
                     type_disp = "var", disp_direct = "vars", domain_size = "n",
                     # MCMC setting to obtain a fast example. Remove next line for reliable results.
-                    chains = 1, iter = 300, seed = 0)
+                    chains = 1, iter = 150, seed = 0)
 
 
 # Spatio-temporal model: it might require time to be fitted

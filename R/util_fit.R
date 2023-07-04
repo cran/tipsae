@@ -85,8 +85,7 @@ arrange_spatial_structure <- function(spatial_error,
   if (spatial_error) {
     NB <- spdep::poly2nb(spatial_df) # list of neighbours
     comp <- spdep::n.comp.nb(NB)
-    message("Building the spatial structure: it is assumed that the 'spatial_df' provided as
-            input is ordered as the 'data' object.")
+    message("Building the spatial structure.")
     # disconnected graphs
     nc <- comp$nc
     # groups size
@@ -208,6 +207,10 @@ arrange_temporal_structure <-
       time <- as.factor(data[, temporal_variable])
       TP <- length(levels(time)) # time periods
       D <- nrow(data) / TP # areas
+
+      if (TP==1){
+        stop("The dataset contains only one time period: a temporal effect cannot be specified.")
+      }
       if (D %% 1 != 0) {
         stop("Each area should have the same observed time periods.")
       }
