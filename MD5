@@ -1,4 +1,4 @@
-006abc96029ec7879cefa7db884676fa *DESCRIPTION
+c32f15e63aa9556f7621ced03bf6e73f *DESCRIPTION
 3a2836d4e457e5875e9379da3515663c *NAMESPACE
 a27f3c8ac1cc0b9a678196acf2a9b6ef *R/app_launcher.R
 e9573f24f5d462004d14faed991fde1a *R/benchmark.R
@@ -14,8 +14,8 @@ f68c00281034f3abf85c5edaef034578 *R/plot_summary.R
 c81b4a2166c421a6a425f5eb07e5560b *R/stanmodels.R
 f5cb8cfcb1ff39e0de01ba460bb0be60 *R/summary_fitsae.R
 54993361f5d7963d6bca194da537ce7f *R/tipsae-package.R
-1d6f30885a64b8578210045e9eb96bf0 *R/util_fit.R
-567b7b3956166c76df67b0d32576cfdb *build/partial.rdb
+36cda8436e95b20397ecced1dd4d17d3 *R/util_fit.R
+dba1acf6c82fa4e40f793b4dfa7514ee *build/partial.rdb
 38e6b64a75022832a23a57a489cbf800 *build/vignette.rds
 410bc6a59a438771d392d3b022d7abe4 *configure
 6abdcc0682dc5c7edb04eaf1cb3ca093 *configure.win
