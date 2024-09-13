@@ -1,7 +1,7 @@
 Package: tipsae
 Title: Tools for Handling Indices and Proportions in Small Area
         Estimation
-Version: 1.0.2
+Version: 1.0.3
 Authors@R: 
     c(person(given = "Silvia",
            family = "De Nicolò",
@@ -17,7 +17,7 @@ Description: It allows for mapping proportions and indicators defined on the uni
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 VignetteBuilder: R.rsp
 RdMacros: Rdpack
 Biarch: true
@@ -28,14 +28,14 @@ Imports: methods, Rcpp (>= 0.12.0), rstan (>= 2.26.0), ggplot2 (>=
 Suggests: rstantools (>= 2.1.1), RcppParallel (>= 5.0.1), callr, sf,
         dplyr, leaflet, tmap, spam, spdep, gridExtra (>= 2.3), R.rsp,
         shinythemes, shinyFeedback, shinybusy, shinyWidgets, shinyjs,
-        bayesplot, loo (>= 2.3.1)
+        bayesplot, DT (>= 0.32.1), loo (>= 2.3.1)
 LinkingTo: BH (>= 1.66.0), Rcpp (>= 0.12.0), RcppEigen (>= 0.3.3.3.0),
         RcppParallel (>= 5.0.1), rstan (>= 2.26.0), StanHeaders (>=
         2.26.0)
 SystemRequirements: GNU make
-Packaged: 2024-07-30 12:17:02 UTC; aldo.gardini2
+Packaged: 2024-09-13 14:15:33 UTC; aldo.gardini2
 Author: Silvia De Nicolò [aut, cre] (<https://orcid.org/0000-0001-5052-6527>),
   Aldo Gardini [aut] (<https://orcid.org/0000-0002-2164-5815>)
 Maintainer: Silvia De Nicolò <silvia.denicolo@unibo.it>
 Repository: CRAN
-Date/Publication: 2024-07-30 12:50:02 UTC
+Date/Publication: 2024-09-13 14:40:02 UTC

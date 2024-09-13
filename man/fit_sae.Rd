@@ -41,7 +41,7 @@ fit_sae(
 
 \item{domain_size}{Data column name indicating domain sizes (optional). In out-of-sample areas, sizes must be \code{NA}.}
 
-\item{household_size}{Data column name indicating the number of sample household. Required if \code{ExtBeta} model is required.}
+\item{household_size}{Data column name indicating the number of sampled households. Required for the \code{ExtBeta} likelihood option.}
 
 \item{likelihood}{Sampling likelihood to be used. The choices are \code{"beta"} (default), \code{"flexbeta"}, \code{ExtBeta}, \code{"Infbeta0"}, \code{"Infbeta1"} and \code{"Infbeta01"}.}
 

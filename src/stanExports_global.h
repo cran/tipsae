@@ -173,8 +173,8 @@ static constexpr std::array<const char*, 647> locations_array__ =
   " (in 'string', line 403, column 2 to column 44)",
   " (in 'string', line 404, column 2 to column 39)",
   " (in 'string', line 406, column 2 to column 79)",
-  " (in 'string', line 410, column 4 to column 89)",
-  " (in 'string', line 411, column 4 to column 50)",
+  " (in 'string', line 410, column 4 to column 102)",
+  " (in 'string', line 411, column 4 to column 63)",
   " (in 'string', line 413, column 4 to column 51)",
   " (in 'string', line 408, column 19 to line 414, column 3)",
   " (in 'string', line 408, column 2 to line 414, column 3)",
@@ -2730,26 +2730,30 @@ public:
               for (int i = 1; i <= M_is; ++i) {
                 current_statement__ = 145;
                 stan::model::assign(p0,
-                  (stan::math::pow((1 +
-                     (stan::model::rvalue(mu, "mu", stan::model::index_uni(i))
-                     *
-                     (stan::model::rvalue(lambda_EB, "lambda_EB",
-                        stan::model::index_uni(1)) - 2))),
-                     (stan::model::rvalue(m_d, "m_d",
-                        stan::model::index_uni(i)) - 1)) /
-                  stan::math::pow((1 -
-                    stan::model::rvalue(mu, "mu", stan::model::index_uni(i))),
-                    (stan::model::rvalue(m_d, "m_d",
-                       stan::model::index_uni(i)) - 2))),
+                  stan::math::exp(
+                    (((stan::model::rvalue(m_d, "m_d",
+                         stan::model::index_uni(i)) - 1.0) *
+                    stan::math::log((1 +
+                      (stan::model::rvalue(mu, "mu",
+                         stan::model::index_uni(i)) *
+                      (stan::model::rvalue(lambda_EB, "lambda_EB",
+                         stan::model::index_uni(1)) - 2))))) -
+                    ((stan::model::rvalue(m_d, "m_d",
+                        stan::model::index_uni(i)) - 2) *
+                    stan::math::log((1 -
+                      stan::model::rvalue(mu, "mu", stan::model::index_uni(i))))))),
                   "assigning variable p0", stan::model::index_uni(i));
                 current_statement__ = 146;
                 stan::model::assign(p1,
-                  (stan::model::rvalue(mu, "mu", stan::model::index_uni(i)) *
-                  stan::math::pow(
-                    stan::model::rvalue(lambda_EB, "lambda_EB",
-                      stan::model::index_uni(1)),
-                    (stan::model::rvalue(m_d, "m_d",
-                       stan::model::index_uni(i)) - 1))),
+                  stan::math::exp(
+                    (stan::math::log(
+                       stan::model::rvalue(mu, "mu",
+                         stan::model::index_uni(i))) +
+                    ((stan::model::rvalue(m_d, "m_d",
+                        stan::model::index_uni(i)) - 1) *
+                    stan::math::log(
+                      stan::model::rvalue(lambda_EB, "lambda_EB",
+                        stan::model::index_uni(1)))))),
                   "assigning variable p1", stan::model::index_uni(i));
                 current_statement__ = 147;
                 stan::model::assign(theta,
@@ -4222,26 +4226,30 @@ public:
               for (int i = 1; i <= M_is; ++i) {
                 current_statement__ = 145;
                 stan::model::assign(p0,
-                  (stan::math::pow((1 +
-                     (stan::model::rvalue(mu, "mu", stan::model::index_uni(i))
-                     *
-                     (stan::model::rvalue(lambda_EB, "lambda_EB",
-                        stan::model::index_uni(1)) - 2))),
-                     (stan::model::rvalue(m_d, "m_d",
-                        stan::model::index_uni(i)) - 1)) /
-                  stan::math::pow((1 -
-                    stan::model::rvalue(mu, "mu", stan::model::index_uni(i))),
-                    (stan::model::rvalue(m_d, "m_d",
-                       stan::model::index_uni(i)) - 2))),
+                  stan::math::exp(
+                    (((stan::model::rvalue(m_d, "m_d",
+                         stan::model::index_uni(i)) - 1.0) *
+                    stan::math::log((1 +
+                      (stan::model::rvalue(mu, "mu",
+                         stan::model::index_uni(i)) *
+                      (stan::model::rvalue(lambda_EB, "lambda_EB",
+                         stan::model::index_uni(1)) - 2))))) -
+                    ((stan::model::rvalue(m_d, "m_d",
+                        stan::model::index_uni(i)) - 2) *
+                    stan::math::log((1 -
+                      stan::model::rvalue(mu, "mu", stan::model::index_uni(i))))))),
                   "assigning variable p0", stan::model::index_uni(i));
                 current_statement__ = 146;
                 stan::model::assign(p1,
-                  (stan::model::rvalue(mu, "mu", stan::model::index_uni(i)) *
-                  stan::math::pow(
-                    stan::model::rvalue(lambda_EB, "lambda_EB",
-                      stan::model::index_uni(1)),
-                    (stan::model::rvalue(m_d, "m_d",
-                       stan::model::index_uni(i)) - 1))),
+                  stan::math::exp(
+                    (stan::math::log(
+                       stan::model::rvalue(mu, "mu",
+                         stan::model::index_uni(i))) +
+                    ((stan::model::rvalue(m_d, "m_d",
+                        stan::model::index_uni(i)) - 1) *
+                    stan::math::log(
+                      stan::model::rvalue(lambda_EB, "lambda_EB",
+                        stan::model::index_uni(1)))))),
                   "assigning variable p1", stan::model::index_uni(i));
                 current_statement__ = 147;
                 stan::model::assign(theta,
